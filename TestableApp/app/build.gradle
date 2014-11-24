@@ -63,3 +63,11 @@ dependencies {
         exclude module: 'wagon-provider-api'
     }
 }
+
+apply plugin: 'idea'
+idea {
+    module {
+        //outputDir = file('build/resources/testDebug')
+        testOutputDir = file('build/test-classes/debug')
+    }
+}
