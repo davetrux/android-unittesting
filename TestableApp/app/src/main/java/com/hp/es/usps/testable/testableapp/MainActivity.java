@@ -2,38 +2,107 @@ package com.hp.es.usps.testable.testableapp;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.hp.es.usps.testable.data.DataProvider;
+import com.hp.es.usps.testable.data.SqlLiteProvider;
+import com.hp.es.usps.testable.data.ToDo;
+import com.hp.es.usps.testable.data.ToDoAdapter;
+
+import java.util.List;
+
+import javax.inject.Inject;
 
 
 public class MainActivity extends Activity {
+
+    private TextView mNewTaskText;
+    private List<ToDo> mData;
+    private ListView mTaskView;
+
+    @Inject
+    DataProvider mProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-    }
+
+        MainApplication app = (MainApplication) getApplication();
+        app.getObjectGraph().inject(this);
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+        mTaskView = (ListView) findViewById(R.id.taskList);
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        mNewTaskText = (TextView) findViewById(R.id.taskText);
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        Button action = (Button) findViewById(R.id.newTask);
+        action.setOnClickListener(this.handleNewTaskEvent);
+
+        mData = findPersistedRecords();
+
+        if(!mData.isEmpty()) {
+            BindToDoList();
         }
 
-        return super.onOptionsItemSelected(item);
+    }
+
+
+    private final View.OnClickListener handleNewTaskEvent = new View.OnClickListener() {
+        @Override
+        public void onClick(final View view) {
+
+            ToDo newItem = new ToDo();
+            newItem.setTitle(mNewTaskText.getText().toString());
+            newItem.setId(mProvider.getNextId());
+            mProvider.addTask(newItem);
+
+            mData.add(newItem);
+
+            BindToDoList();
+
+            mNewTaskText.setText("");
+        }
+    };
+
+    /**
+     * Helper method to put the list of items into the ListView
+     */
+    private void BindToDoList() {
+        final ToDoAdapter adapter = new ToDoAdapter(this, mData);
+        mTaskView.setAdapter(adapter);
+
+        mTaskView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+
+                final TextView v = (TextView) view;
+
+                final long todoId = (Long) v.getTag();
+
+                //Remove from the local database
+                final SqlLiteProvider provider = new SqlLiteProvider(parent.getContext());
+                provider.deleteTask(todoId);
+
+                mData.remove(position);
+
+                BindToDoList();
+            }
+        });
+    }
+
+    /**
+     * Find any objects in the database
+     * @return An ArrayList of To-Do objects
+     */
+    protected List<ToDo> findPersistedRecords() {
+
+        List<ToDo> result = mProvider.findAll();
+
+        return result;
     }
 }

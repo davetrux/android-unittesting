@@ -1,13 +1,15 @@
 package com.hp.es.usps.testable.testableapp;
 
-import android.app.Activity;
-import android.widget.TextView;
+import android.widget.ListView;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
@@ -15,16 +17,26 @@ import static junit.framework.Assert.assertEquals;
 
 @RunWith(RobolectricTestRunner.class)
 public class ApplicationTest {
+    @Before
+    public void setUp()
+    {
+
+
+    }
+
     @Test
-    public void testInstantiation() {
+    public void testNumberOfRows(){
 
-        Activity activity = new Activity();
+        final int Expected_Rows = 3;
 
-        TextView tv = new TextView(activity);
-        tv.setText("e84");
+        MainActivity activity = Robolectric.buildActivity(MainActivity.class).create().visible().get();
 
-        assertEquals("e84", tv.getText());
+        ListView list = (ListView)activity.findViewById(R.id.taskList);
 
+        assertNotNull(list);
 
+        int count = list.getAdapter().getCount();
+
+        assertEquals(Expected_Rows, count);
     }
 }
