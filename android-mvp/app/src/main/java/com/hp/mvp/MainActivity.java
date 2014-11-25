@@ -9,7 +9,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.hp.mvp.data.ToDo;
-import com.hp.mvp.data.ToDoAdapter;
 
 import java.util.List;
 
