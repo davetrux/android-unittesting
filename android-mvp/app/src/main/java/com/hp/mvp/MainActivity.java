@@ -8,33 +8,23 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.hp.mvp.data.DataProvider;
-import com.hp.mvp.data.SqlLiteProvider;
 import com.hp.mvp.data.ToDo;
 import com.hp.mvp.data.ToDoAdapter;
 
 import java.util.List;
 
-import javax.inject.Inject;
 
-
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements ToDoView {
 
     private TextView mNewTaskText;
-    private List<ToDo> mData;
     private ListView mTaskView;
 
-    @Inject
-    DataProvider mProvider;
+    private ToDoPresenter mPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        MainApplication app = (MainApplication) getApplication();
-        app.getObjectGraph().inject(this);
-
 
         mTaskView = (ListView) findViewById(R.id.taskList);
 
@@ -43,37 +33,30 @@ public class MainActivity extends Activity {
         Button action = (Button) findViewById(R.id.newTask);
         action.setOnClickListener(this.handleNewTaskEvent);
 
-        mData = findPersistedRecords();
+        mPresenter = new MainPresenter(this);
 
-        if(!mData.isEmpty()) {
-            BindToDoList();
-        }
-
+        mPresenter.retrieveData();
     }
 
 
     private final View.OnClickListener handleNewTaskEvent = new View.OnClickListener() {
         @Override
         public void onClick(final View view) {
-
-            ToDo newItem = new ToDo();
-            newItem.setTitle(mNewTaskText.getText().toString());
-            newItem.setId(mProvider.getNextId());
-            mProvider.addTask(newItem);
-
-            mData.add(newItem);
-
-            BindToDoList();
+            mPresenter.addToDo(mNewTaskText.getText().toString());
 
             mNewTaskText.setText("");
         }
     };
 
+    public MainApplication getMainApplication(){
+        return (MainApplication) getApplication();
+    }
+
     /**
      * Helper method to put the list of items into the ListView
      */
-    private void BindToDoList() {
-        final ToDoAdapter adapter = new ToDoAdapter(this, mData);
+    public void bindToDoList(final List<ToDo> data) {
+        final ToDoAdapter adapter = new ToDoAdapter(this, data);
         mTaskView.setAdapter(adapter);
 
         mTaskView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -84,25 +67,8 @@ public class MainActivity extends Activity {
 
                 final long todoId = (Long) v.getTag();
 
-                //Remove from the local database
-                final SqlLiteProvider provider = new SqlLiteProvider(parent.getContext());
-                provider.deleteTask(todoId);
-
-                mData.remove(position);
-
-                BindToDoList();
+                mPresenter.deleteToDo(todoId, position);
             }
         });
-    }
-
-    /**
-     * Find any objects in the database
-     * @return An ArrayList of To-Do objects
-     */
-    protected List<ToDo> findPersistedRecords() {
-
-        List<ToDo> result = mProvider.findAll();
-
-        return result;
     }
 }

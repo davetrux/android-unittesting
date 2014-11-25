@@ -5,7 +5,7 @@ package com.hp.tests.mock;
  */
 
 
-import com.hp.mvp.MainActivity;
+import com.hp.mvp.MainPresenter;
 import com.hp.mvp.data.DataProvider;
 
 import javax.inject.Singleton;
@@ -19,7 +19,7 @@ import dagger.Provides;
 
 @Module(
         injects = {
-                MainActivity.class
+                MainPresenter.class
         }
 )
 
