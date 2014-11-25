@@ -1,18 +1,13 @@
 package com.hp.tests;
 
-
-
 import com.hp.mvp.MainApplication;
 import com.hp.tests.mock.MockModule;
-
 import org.robolectric.TestLifecycleApplication;
-
 import java.lang.reflect.Method;
-
 import dagger.ObjectGraph;
 
 /**
- * Created by david on 11/23/14.
+ * Created by trux on 11/23/14.
  */
 public class TestMainApplication extends MainApplication implements TestLifecycleApplication {
 
