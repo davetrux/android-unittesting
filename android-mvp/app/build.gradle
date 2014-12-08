@@ -3,12 +3,12 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.14.+'
+        classpath 'com.android.tools.build:gradle:1.0.0-rc4'
         classpath 'org.robolectric:robolectric-gradle-plugin:0.14.+'
     }
 }
 
-apply plugin: 'com.android.application'
+apply plugin: 'android'
 apply plugin: 'robolectric'
 
 android {
@@ -23,12 +23,12 @@ android {
     }
     buildTypes {
         release {
-            runProguard false
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             //signingConfig signingConfigs.release
         }
         debug {
-            runProguard false
+            minifyEnabled false
             proguardFile 'proguard-rules.txt'
             debuggable true
             testCoverageEnabled = true
