@@ -1,4 +1,4 @@
-det-jug-2014
+Android UnitTesting
 ============
 
-Example code for my talk at the Detroit Java User Group in Dec 2014
+Example code for a talk about Android Unit Tesing with Android Studio, Robolectric, and Gradle
